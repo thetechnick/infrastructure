@@ -1,0 +1,6 @@
+- hosts: localhost
+  roles:
+  - role: ttn_terminal
+    vars:
+      ttn_terminal_user: nschieder
+      ttn_terminal_color: blue
