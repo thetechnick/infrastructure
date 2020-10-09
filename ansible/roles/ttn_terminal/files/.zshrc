@@ -48,3 +48,5 @@ eval "$(starship init zsh)"
 
 # Default Env Vars
 export ANSIBLE_NOCOWS=1
+
+export PATH="$PATH:$HOME/.local/bin:$HOME/go/bin"
