@@ -1,0 +1,7 @@
+- hosts: routerd
+  roles:
+  - role: ttn_terminal
+    vars:
+      ttn_terminal_user: root
+      ttn_terminal_color: yellow
+  - role: systemd-networkd

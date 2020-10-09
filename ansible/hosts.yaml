@@ -1,0 +1,4 @@
+routerd:
+  hosts:
+    192.168.122.131:
+      ansible_user: root

@@ -1,0 +1,31 @@
+---
+- name: Ensure NetworkManager is disabled
+  systemd:
+    enabled: no
+    name: '{{item}}'
+  with_items:
+  - NetworkManager
+
+- name: ensure dhcpv4-enable.network
+  copy:
+    src: dhcpv4-enable.network
+    dest: /etc/systemd/network/dhcpv4-enable.network
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Ensure systemd-networkd is enabled
+  systemd:
+    enabled: yes
+    name: '{{item}}'
+  with_items:
+  - systemd-networkd
+  - systemd-resolved
+  notify:
+  - Reboot
+
+- name: Create symbolic link 
+  file:
+    src: "/run/systemd/resolve/resolv.conf"
+    dest: "/etc/resolv.conf"
+    state: link
