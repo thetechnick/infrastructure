@@ -4,11 +4,16 @@
     that:
     - ttn_terminal_user is defined
 
+- name: 'Check user exists'
+  user:
+    name: '{{ttn_terminal_user}}'
+    state: present
+  register: ttn_terminal_user_registered
+
 - name: Install dependencies
   dnf:
-    name: '{{ item }}'
+    name: [zsh, git, vim, tmux]
     state: latest
-  with_items: [zsh, git, vim, tmux]
   become: true
 
 - name: Install starship
@@ -26,7 +31,7 @@
 - name: Ensure .antigen.zsh
   copy:
     src: antigen.zsh
-    dest: /home/{{ttn_terminal_user}}/.antigen.zsh
+    dest: '{{ttn_terminal_user_registered.home}}/.antigen.zsh'
     owner: '{{ttn_terminal_user}}'
     group: '{{ttn_terminal_user}}'
     mode: 0644
@@ -34,7 +39,7 @@
 - name: Ensure .zshrc
   copy:
     src: .zshrc
-    dest: /home/{{ttn_terminal_user}}/.zshrc
+    dest: '{{ttn_terminal_user_registered.home}}/.zshrc'
     owner: '{{ttn_terminal_user}}'
     group: '{{ttn_terminal_user}}'
     mode: 0644
@@ -42,15 +47,20 @@
 - name: Ensure .tmux.conf
   copy:
     src: .tmux.conf
-    dest: /home/{{ttn_terminal_user}}/.tmux.conf
+    dest: '{{ttn_terminal_user_registered.home}}/.tmux.conf'
     owner: '{{ttn_terminal_user}}'
     group: '{{ttn_terminal_user}}'
     mode: 0644
 
+- name: Ensure '{{ttn_terminal_user_registered.home}}/.config' dir exists
+  file:
+    path: '{{ttn_terminal_user_registered.home}}/.config'
+    state: directory
+
 - name: Ensure starship.toml
   template:
     src: starship.toml
-    dest: /home/{{ttn_terminal_user}}/.config/starship.toml
+    dest: '{{ttn_terminal_user_registered.home}}/.config/starship.toml'
     owner: '{{ttn_terminal_user}}'
     group: '{{ttn_terminal_user}}'
     mode: 0644
