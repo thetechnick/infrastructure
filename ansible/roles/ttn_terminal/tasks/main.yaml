@@ -16,11 +16,34 @@
     state: latest
   become: true
 
-- name: Install starship
-  shell: curl -fsSL https://starship.rs/install.sh | bash -s -- --force
-  args:
-    creates: /usr/local/bin/starship
-  become: true
+- name: Check that the space-prompt exists
+  stat:
+    path: /usr/local/bin/space-prompt
+  register: space_prompt_exists
+
+- name: "Download and Install space-prompt"
+  block:
+  - name: Download space-prompt aarch64
+    get_url:
+      url: https://github.com/thetechnick/go-space-prompt/releases/download/v0.1.0/space-prompt_linux_arm64.tar.gz
+      dest: /tmp/space-prompt.tar.gz
+    register: space_prompt_archive
+    when: ansible_architecture == "aarch64"
+
+  - name: Download space-prompt x86_64
+    get_url:
+      url: https://github.com/thetechnick/go-space-prompt/releases/download/v0.1.0/space-prompt_linux_amd64.tar.gz
+      dest: /tmp/space-prompt.tar.gz
+    register: space_prompt_archive
+    when: ansible_architecture == "x86_64"
+
+  - name: Install space-prompt
+    unarchive:
+      src: /tmp/space-prompt.tar.gz
+      dest: /usr/local/bin
+      remote_src: yes
+    become: true
+  when: not space_prompt_exists.stat.exists
 
 - name: switch to zsh
   user:
@@ -37,7 +60,7 @@
     mode: 0644
 
 - name: Ensure .zshrc
-  copy:
+  template:
     src: .zshrc
     dest: '{{ttn_terminal_user_registered.home}}/.zshrc'
     owner: '{{ttn_terminal_user}}'
@@ -56,11 +79,3 @@
   file:
     path: '{{ttn_terminal_user_registered.home}}/.config'
     state: directory
-
-- name: Ensure starship.toml
-  template:
-    src: starship.toml
-    dest: '{{ttn_terminal_user_registered.home}}/.config/starship.toml'
-    owner: '{{ttn_terminal_user}}'
-    group: '{{ttn_terminal_user}}'
-    mode: 0644

@@ -17,6 +17,7 @@
 - name: Ensure systemd-networkd is enabled
   systemd:
     enabled: yes
+    state: started
     name: '{{item}}'
   with_items:
   - systemd-networkd
@@ -28,4 +29,5 @@
   file:
     src: "/run/systemd/resolve/resolv.conf"
     dest: "/etc/resolv.conf"
+    force: yes
     state: link
